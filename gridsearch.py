@@ -259,14 +259,14 @@ def start_predict_xgboost():
     print(f"scikit-learn version: {sklearn.__version__}")
     print(f"xgboost version: {xgb.__version__}")
     param_grid = {
-    'n_estimators': [100, 300, 500, 600],  # Number of boosting rounds
-    'learning_rate': [0.01, 0.05, 0.1],    # Learning rate
-    'max_depth': [1, 3, 5, 7],             # Maximum depth of trees
-    'gamma': [0, 0.1, 0.2],                 # Regularization term
-    'subsample': [0.3, 0.4, 0.5, 0.7],           # Subsample ratio
-    'colsample_bytree': [0.5, 0.7, 1.0],    # Subsample ratio for each tree
-    'reg_alpha': [0.01, 0.1],               # L1 regularization
-    'reg_lambda': [1.0, 5.0, 10.0]          # L2 regularization
+    'n_estimators': [500, 600, 1000],  # Number of boosting rounds
+    'learning_rate': [0.065],    # Learning rate
+    'max_depth': [1, 2],             # Maximum depth of trees
+    'gamma': [ 0.2],                 # Regularization term
+    'subsample': [0.4],           # Subsample ratio
+    'colsample_bytree': [1.0],    # Subsample ratio for each tree
+    'reg_alpha': [100000],               # L1 regularization
+    'reg_lambda': [12.50]          # L2 regularization
     }
     
     xgb_model = xgb.XGBRegressor(
@@ -284,12 +284,12 @@ def start_predict_xgboost():
         estimator=xgb_model,
         param_grid=param_grid,
         scoring='r2',  # Use R² as the scoring metric
-        cv=3,          # Use 3-fold cross-validation
+        cv=None,          # Use 3-fold cross-validation
         verbose=2,     # Display progress
         n_jobs=-1      # Use all available CPUs
     )
 
-    grid_search.fit(X_train_scaled, y_train, eval_set=eval_set)
+    grid_search.fit(X_train_scaled, y_train)
 
     # Print the best hyperparameters found by grid search
     print("Best Hyperparameters: ", grid_search.best_params_)
@@ -303,15 +303,17 @@ def start_predict_xgboost():
 
     train_r2 = r2_score(y_train, y_train_pred)
     test_r2 = r2_score(y_test, y_test_pred)
-    result = best_xgb_model.evals_result()
+    
+    # result = best_xgb_model.evals_result()
 
-    print(result)
+    # print(result)
     print(f"Train R² Score: {train_r2:.4f}")
     print(f"Test R² Score: {test_r2:.4f}")
-
+'''
     iterations = len(result['validation_0']['rmse'])
     x_axis = range(0, iterations)
 
+    
     plt.figure(figsize=(10, 6))
     plt.plot(x_axis, result['validation_0']['rmse'], label='Train RMSE')  # Train error (RMSE)
     plt.plot(x_axis, result['validation_1']['rmse'], label='Test RMSE')  # Test error (RMSE)
@@ -321,7 +323,8 @@ def start_predict_xgboost():
     plt.legend()
     plt.grid(True)
     plt.show()
-    generate_beeswarm_plot(X_train, xgb_model)
+    '''
+            #generate_beeswarm_plot(X_train, xgb_model)
 
 def generate_beeswarm_plot(X_train, model):
     # 1. Create a SHAP Explainer object
